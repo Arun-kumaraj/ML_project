@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Salary Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="theme-color" content="#0ea5e9">
+</head>
+<body>
+    <div class="page">
+        <nav class="topnav">
+            <div class="container nav-row">
+                <div class="nav-left">
+                    <div class="logo" aria-hidden="true"></div>
+                    <span class="nav-brand">Salary Predictor</span>
+                </div>
+                <div class="nav-right">
+                    <a href="#how" class="nav-link">How it works</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container hero-grid">
+            <section class="hero-copy">
+                <h1 class="display">Predict your salary with confidence</h1>
+                <p class="lede">A lightweight, privacy-friendly tool built on a linear regression model. Enter your details to estimate an expected salary instantly.</p>
+                <ul class="bullets">
+                    <li>Fast, on-device prediction</li>
+                    <li>Simple inputs, clear outputs</li>
+                    <li>No data stored</li>
+                </ul>
+            </section>
+            <section class="panel" role="region" aria-labelledby="predict-title">
+                <div class="panel-head">
+                    <h2 id="predict-title">Get your estimate</h2>
+                    <p class="muted">Provide a few details to run the prediction.</p>
+                </div>
+                <div class="panel-body">
+                    {% if error_text %}
+                    <div class="alert" role="alert">{{ error_text }}</div>
+                    {% endif %}
+                    <form action="/predict" method="post" class="form" autocomplete="off">
+                        <div class="form-grid form-grid-2">
+                            <div class="field">
+                                <label for="experience" class="label">Years of Experience</label>
+                                <input id="experience" class="input" type="number" name="experience" step="0.1" min="0" placeholder="e.g. 3.5" required>
+                            </div>
+                            <div class="field">
+                                <label for="age" class="label">Age</label>
+                                <input id="age" class="input" type="number" name="age" min="16" max="80" placeholder="e.g. 30" required>
+                            </div>
+                            <div class="field">
+                                <label for="gender" class="label">Gender</label>
+                                <select id="gender" class="select" name="gender" required>
+                                    <option value="" disabled selected>Select gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="education" class="label">Education Level</label>
+                                <select id="education" class="select" name="education" required>
+                                    <option value="" disabled selected>Select education</option>
+                                    <option value="High School">High School</option>
+                                    <option value="Bachelor's">Bachelor's</option>
+                                    <option value="Master's">Master's</option>
+                                    <option value="PhD">PhD</option>
+                                </select>
+                            </div>
+                            <div class="actions actions-span">
+                                <div class="actions-row">
+                                    <a class="btn btn-secondary btn-clear" href="/" role="button" aria-label="Clear prediction and reset form">Clear</a>
+                                    <button class="btn" type="submit">Predict</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    {% if prediction_text %}
+                    <div class="result" role="status" aria-live="polite">
+                        <div class="badge" aria-hidden="true"></div>
+                        <p class="result-text">{{ prediction_text }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+
+        <section id="how" class="container section">
+            <h3>How it works</h3>
+            <p class="muted">We trained a regression model on anonymized salary data with features including years of experience, age, gender, and education level. The model and preprocessing live in-memory and your form data is not stored.</p>
+        </section>
+
+        <footer class="site-footer">
+            <div class="container footer-row">
+                <span>Built with Flask and scikit-learn</span>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
