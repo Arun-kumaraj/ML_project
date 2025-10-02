@@ -1,9 +1,16 @@
 from flask import Flask, request, render_template
 import joblib
 import pandas as pd
+import os
 
 app = Flask(__name__)
-model = joblib.load("salary_model.pkl")
+
+# Get absolute path to salary_model.pkl (same folder as app.py)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "salary_model.pkl")
+
+# Load model
+model = joblib.load(model_path)
 
 @app.route('/')
 def home():
@@ -33,7 +40,7 @@ def predict():
             error_text='Please enter valid numeric values for experience and age.',
         )
 
-    # Build input according to model's expected features (supports old and new models)
+    # Build input according to model's expected features
     expected = None
     try:
         if hasattr(model, 'feature_names_in_') and model.feature_names_in_ is not None:
@@ -53,15 +60,13 @@ def predict():
             'Gender': gender,
             'Education Level': education,
         }
-        # Only include columns the model expects, in the right order
         row = [data_map[col] for col in expected if col in data_map]
         input_df = pd.DataFrame([row], columns=[col for col in expected if col in data_map])
     else:
-        # Fallback: try the new schema, else old single-feature schema
         try:
             input_df = pd.DataFrame(
                 [[years_exp, age, gender, education]],
-                columns=['Years of Experience','Age','Gender','Education Level']
+                columns=['Years of Experience', 'Age', 'Gender', 'Education Level']
             )
         except Exception:
             input_df = pd.DataFrame([[years_exp]], columns=['Years of Experience'])
@@ -69,9 +74,9 @@ def predict():
     try:
         prediction = model.predict(input_df)[0]
     except Exception:
-        # Last resort: try with only Years of Experience if mismatch persists
         input_df = pd.DataFrame([[years_exp]], columns=['Years of Experience'])
         prediction = model.predict(input_df)[0]
+
     return render_template('index.html', prediction_text=f"Predicted Salary: ₹{prediction:.2f}")
 
 if __name__ == "__main__":
